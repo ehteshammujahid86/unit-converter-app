@@ -122,20 +122,28 @@ unit_options = {
 }
 unit = st.selectbox("Select Conversion", unit_options[category])
 
-# --- Value Input ---
-value = st.number_input("Enter the Value to Convert", format="%.4f")
+# --- Value Input with placeholder ---
+input_str = st.text_input("Enter the Value to Convert", placeholder="Enter number here...")
 
-# --- Conversion Trigger ---
-if st.button("🔁 Convert"):
-    result, result_unit = convert_units(category, value, unit)
-    if result is not None:
-        input_unit = unit.split(" to ")[0]
-        output_text = f"✅ {value:.2f} {input_unit} is equal to {result:.2f} {result_unit}."
-        st.success(output_text)
-        # Store in session history
-        st.session_state.history.append(output_text)
-    else:
-        st.error("⚠️ Conversion failed. Please check your input and selected units.")
+# --- Try converting input to float ---
+try:
+    value = float(input_str)
+except ValueError:
+    value = None
+
+if value is not None:
+    if st.button("🔁 Convert"):
+        result, result_unit = convert_units(category, value, unit)
+        if result is not None:
+            input_unit = unit.split(" to ")[0]
+            output_text = f"✅ {value:.2f} {input_unit} is equal to {result:.2f} {result_unit}."
+            st.success(output_text)
+            st.session_state.history.append(output_text)
+        else:
+            st.error("⚠️ Conversion failed. Please check your input and selected units.")
+else:
+    if input_str != "":
+        st.warning("⚠️ Please enter a valid number to convert.")
 
 # --- Show History ---
 if st.session_state.history:
